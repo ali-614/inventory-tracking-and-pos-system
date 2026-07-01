@@ -14,8 +14,8 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-class Varient(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='varients')
+class Variant(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
     color = models.CharField(max_length=50)
     size = models.CharField(max_length=50)
     reference_number = models.CharField(max_length=50, unique=True)
@@ -27,12 +27,12 @@ class Varient(models.Model):
     
 
 class StockEntry(models.Model):
-    varient = models.ForeignKey(Varient, on_delete=models.CASCADE, related_name= 'stock_entries')
+    variant = models.ForeignKey(Variant, on_delete=models.CASCADE, related_name= 'stock_entries')
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='stock_entries')
     quantity = models.PositiveBigIntegerField(default=0)
 
     class Meta:
-        unique_together = ('varient', 'location')
+        unique_together = ('variant', 'location')
 
     def __str__(self):
         return f"{self.variant} @ {self.location.name}: {self.quantity}"
