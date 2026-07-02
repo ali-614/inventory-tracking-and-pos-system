@@ -41,6 +41,7 @@ class StockEntry(models.Model):
 
     class Meta:
         unique_together = ('variant', 'location')
+        verbose_name_plural = "Stock entries"
 
     def __str__(self):
         return f"{self.variant} @ {self.location.name}: {self.quantity}"
