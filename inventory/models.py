@@ -15,6 +15,14 @@ class Product(models.Model):
         return self.name
 
 class Variant(models.Model):
+    
+    def save(self, *args, **kwargs):
+        super().save(*args,**kwargs)
+        if not self.barcode:
+            self.barcode = f"BAR-{self.id:06d}"
+            super().save(update_fields=['barcode'])
+
+    
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
     color = models.CharField(max_length=50)
     size = models.CharField(max_length=50)
