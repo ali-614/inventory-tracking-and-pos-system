@@ -17,7 +17,12 @@ class VariantAdmin(admin.ModelAdmin):
     search_fields = ["reference_number", "barcode"]
     list_filter = ["color"]
 
+class StockEntryAdmin(admin.ModelAdmin):
+    list_display = ["variant", "location", "quantity"]
+    list_filter = ["location"]
+    search_fields = ["variant__reference_number", "variant__barcode"]
+
 admin.site.register(Product,ProductAdmin)
 admin.site.register(Variant, VariantAdmin)
 admin.site.register(Location)
-admin.site.register(StockEntry)
+admin.site.register(StockEntry, StockEntryAdmin)
