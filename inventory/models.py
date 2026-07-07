@@ -27,7 +27,7 @@ class Variant(models.Model):
     color = models.CharField(max_length=50)
     size = models.CharField(max_length=50)
     reference_number = models.CharField(max_length=50, unique=True)
-    barcode = models.CharField(max_length=50, unique=True)
+    barcode = models.CharField(max_length=50, unique=True,blank=True)
     price = models.DecimalField(max_digits=10,decimal_places=2)
 
     def __str__(self):
