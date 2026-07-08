@@ -1,4 +1,5 @@
-from django.db import models
+from django.db import models, transaction
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Location(models.Model):
@@ -39,6 +40,32 @@ class StockEntry(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='stock_entries')
     quantity = models.PositiveBigIntegerField(default=0)
 
+    class Transfer(models.Model):
+        variant = models.ForeignKey(Variant, on_delete=models.CASCADE, related_name='transfers')
+        source = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='transfers_out')
+        destination = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='transfers_in')
+        quantity = models.PositiveIntegerField()
+        created_at = models.DateTimeField(auto_now_add=True)
+
+        def execute(self):
+            source_entry = StockEntry.objects.filter(variant = self.variant, location = self.source).first()
+            if source_entry is None or source_entry.quantity < self.quantity:
+                raise ValidationError("Not enough stock at the source location")
+            
+            with transaction.atomic():
+                source_entry.quantity -= self.quantity
+                source_entry.save()
+
+                destination_entry, created = StockEntry.objects.get_or_create(
+                    variant=self.variant,
+                    location= self.destination,
+                    defaults={'quantity':0}
+                )
+                destination_entry.quantity += self.quantity
+                destination_entry.save()
+
+        def __str__(self):
+            return f"{self.quantity} x {self.variant} : {self.source.name} → {self.destination.name}"
     class Meta:
         unique_together = ('variant', 'location')
         verbose_name_plural = "Stock entries"
