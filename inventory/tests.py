@@ -38,3 +38,14 @@ class TransferTest(TestCase):
 
         self.assertEqual(warehouse_entry.quantity, 70)
         self.assertEqual(shop_entry.quantity, 30)
+
+    def test_transfer_exceeding_stock_is_rejected(self):
+        transfer = Transfer.objects.create(
+            variant=self.variant, source=self.warehouse,
+            destination=self.shop, quantity=500
+        )
+        with self.assertRaises(ValidationError):
+            transfer.execute()
+
+        warehouse_entry = StockEntry.objects.get(variant=self.variant, location=self.warehouse)
+        self.assertEqual(warehouse_entry.quantity, 100)
