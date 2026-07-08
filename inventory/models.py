@@ -40,7 +40,14 @@ class StockEntry(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='stock_entries')
     quantity = models.PositiveBigIntegerField(default=0)
 
-    class Transfer(models.Model):
+    class Meta:
+        unique_together = ('variant', 'location')
+        verbose_name_plural = "Stock entries"
+
+    def __str__(self):
+        return f"{self.variant} @ {self.location.name}: {self.quantity}"
+
+class Transfer(models.Model):
         variant = models.ForeignKey(Variant, on_delete=models.CASCADE, related_name='transfers')
         source = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='transfers_out')
         destination = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='transfers_in')
@@ -66,9 +73,3 @@ class StockEntry(models.Model):
 
         def __str__(self):
             return f"{self.quantity} x {self.variant} : {self.source.name} → {self.destination.name}"
-    class Meta:
-        unique_together = ('variant', 'location')
-        verbose_name_plural = "Stock entries"
-
-    def __str__(self):
-        return f"{self.variant} @ {self.location.name}: {self.quantity}"
