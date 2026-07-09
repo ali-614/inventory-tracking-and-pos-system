@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Transfer</title>
+</head>
+<body>
+    <h1>Transfer Stock</h1>
+
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Transfer</button>
+    </form>
+</body>
+</html>
