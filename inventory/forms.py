@@ -7,4 +7,4 @@ class TransferForm(forms.Form):
     source = forms.ModelChoiceField(queryset=Location.objects.all())
     destination = forms.ModelChoiceField(queryset=Location.objects.all())
     quantity = forms.IntegerField(min_value=1)
-
+    unit = forms.ChoiceField(choices=[("pieces","Pieces"),("cartons","Cartons")])
