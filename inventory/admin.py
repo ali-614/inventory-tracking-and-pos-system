@@ -13,14 +13,15 @@ class ProductAdmin(admin.ModelAdmin):
     inlines = [VarientInLine]
 
 class VariantAdmin(admin.ModelAdmin):
-    list_display = ["__str__", "reference_number", "barcode", "price"]
+    list_display = ["__str__", "reference_number", "barcode", "price", "pieces_per_carton"]
     search_fields = ["reference_number", "barcode"]
     list_filter = ["color"]
 
 class StockEntryAdmin(admin.ModelAdmin):
-    list_display = ["variant", "location", "quantity"]
+    list_display = ["variant", "location", "quantity", "carton_display" ]
     list_filter = ["location"]
     search_fields = ["variant__reference_number", "variant__barcode"]
+    
 
 admin.site.register(Product,ProductAdmin)
 admin.site.register(Variant, VariantAdmin)
