@@ -12,7 +12,7 @@ def transfer_stock(request):
             quantity = form.cleaned_data["quantity"]
             unit = form.cleaned_data["unit"]
             if unit == "cartons":
-                if variant.piece_per_carton is None:
+                if variant.pieces_per_carton is None:
                     messages.error(request, "This variant is counted in pieces only — it has no carton size.")
                     return render(request, "inventory/transfer.html", {"form": form})
                 quantity = quantity * variant.pieces_per_carton

@@ -49,3 +49,43 @@ class TransferTest(TestCase):
 
         warehouse_entry = StockEntry.objects.get(variant=self.variant, location=self.warehouse)
         self.assertEqual(warehouse_entry.quantity, 100)
+
+class CartonConversionTest(TestCase):
+    def setUp(self):
+        self.warehouse = Location.objects.create(name="Warehouse")
+        self.shop = Location.objects.create(name="Shop")
+        self.product = Product.objects.create(name="Ribbon", category="Ribbons")
+        self.variant = Variant.objects.create(
+            product=self.product, color="Red", size="20mm",
+            reference_number="RIB-1", price=500, pieces_per_carton=10
+        )
+        StockEntry.objects.create(variant=self.variant, location=self.warehouse, quantity=100)
+
+    def test_carton_transfer_converts_to_pieces(self):
+        self.client.post("/transfer/", {
+            "variant": self.variant.id,
+            "source": self.warehouse.id,
+            "destination": self.shop.id,
+            "quantity": 2,
+            "unit": "cartons",
+        })
+        warehouse_entry = StockEntry.objects.get(variant=self.variant, location=self.warehouse)
+        shop_entry = StockEntry.objects.get(variant=self.variant, location=self.shop)
+        self.assertEqual(warehouse_entry.quantity, 80)
+        self.assertEqual(shop_entry.quantity, 20)
+
+    def test_carton_transfer_rejected_for_piece_only_variant(self):
+        piece_only = Variant.objects.create(
+            product=self.product, color="Blue", size="10mm",
+            reference_number="RIB-2", price=300
+        )
+        StockEntry.objects.create(variant=piece_only, location=self.warehouse, quantity=50)
+        self.client.post("/transfer/", {
+            "variant": piece_only.id,
+            "source": self.warehouse.id,
+            "destination": self.shop.id,
+            "quantity": 2,
+            "unit": "cartons",
+        })
+        warehouse_entry = StockEntry.objects.get(variant=piece_only, location=self.warehouse)
+        self.assertEqual(warehouse_entry.quantity, 50)
